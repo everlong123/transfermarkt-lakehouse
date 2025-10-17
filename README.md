@@ -10,22 +10,9 @@ Dữ liệu được lấy từ **Transfermarkt (Kaggle)**, triển khai trên k
 
 ```mermaid
 flowchart TD
-    A[Kaggle - Transfermarkt] --> B[MinIO (Data Lake)]
-    B --> C[Jupyter Notebook (PySpark)]
-    C --> D[Apache Superset (BI)]
-
-    subgraph Bronze-Silver-Gold Layers
-    B
-    C
-    end
-
-    B:::bronze
-    C:::silver
-    D:::gold
-
-    classDef bronze fill:#cce5ff,stroke:#005cbf,color:#000;
-    classDef silver fill:#d4edda,stroke:#155724,color:#000;
-    classDef gold fill:#fff3cd,stroke:#856404,color:#000;
+    A[📦 Kaggle - Transfermarkt<br/>Data Source] --> B[🗄️ MinIO<br/>(Data Lake: Bronze/Silver/Gold)]
+    B --> C[🧠 Jupyter Notebook<br/>(PySpark ETL & ML)]
+    C --> D[📊 Apache Superset<br/>(BI Dashboard & Visualization)]
 
 
 ## ⚙️ Công nghệ sử dụng
