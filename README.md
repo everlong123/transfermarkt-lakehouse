@@ -88,7 +88,7 @@ docker compose up -d
 ---
 
 ## 📚 Tài liệu tham khảo
-- [Transfermarkt Dataset – Kaggle](https://www.kaggle.com/)
+- [Transfermarkt Dataset – Kaggle](https://www.kaggle.com/datasets/davidcariboo/player-scores)
 - [Apache Superset Docs](https://superset.apache.org)
 - [MinIO Docs](https://min.io/docs)
 - [Apache Spark Docs](https://spark.apache.org/docs/latest)
