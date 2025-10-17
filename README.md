@@ -7,35 +7,26 @@ Dữ liệu được lấy từ **Transfermarkt (Kaggle)**, triển khai trên k
 ---
 
 ## 🏗️ Kiến trúc tổng thể
-┌──────────────────────────┐
-│ Data Source │
-│ Kaggle - Transfermarkt │
-└─────────────┬────────────┘
-│
-▼
-┌──────────────────────────┐
-│ MinIO (Data Lake) │
-│ - Lưu dữ liệu Bronze/Silver/Gold │
-│ - Giao tiếp qua S3 API │
-└─────────────┬────────────┘
-│
-▼
-┌──────────────────────────┐
-│ Jupyter Notebook (PySpark) │
-│ - ETL: Bronze → Silver → Gold │
-│ - Phân tích & Machine Learning │
-└─────────────┬────────────┘
-│
-▼
-┌──────────────────────────┐
-│ Apache Superset (BI) │
-│ - Dashboard & Visualization │
-└──────────────────────────┘
 
-yaml
-Copy code
+```mermaid
+flowchart TD
+    A[Kaggle - Transfermarkt] --> B[MinIO (Data Lake)]
+    B --> C[Jupyter Notebook (PySpark)]
+    C --> D[Apache Superset (BI)]
 
----
+    subgraph Bronze-Silver-Gold Layers
+    B
+    C
+    end
+
+    B:::bronze
+    C:::silver
+    D:::gold
+
+    classDef bronze fill:#cce5ff,stroke:#005cbf,color:#000;
+    classDef silver fill:#d4edda,stroke:#155724,color:#000;
+    classDef gold fill:#fff3cd,stroke:#856404,color:#000;
+
 
 ## ⚙️ Công nghệ sử dụng
 
