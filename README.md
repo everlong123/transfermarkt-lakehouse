@@ -1,13 +1,12 @@
 # ⚽ Transfermarkt Lakehouse Project
 
 ## 🚀 Giới thiệu
-Dự án **Transfermarkt Lakehouse** được xây dựng nhằm mô phỏng một hệ thống phân tích dữ liệu bóng đá hoàn chỉnh, từ thu thập – xử lý – phân tích – trực quan hóa.  
+Dự án **Transfermarkt Lakehouse** được xây dựng nhằm mô phỏng một hệ thống phân tích dữ liệu bóng đá hoàn chỉnh — từ **thu thập → xử lý → phân tích → trực quan hóa**.  
 Dữ liệu được lấy từ **Transfermarkt (Kaggle)**, triển khai trên kiến trúc **Data Lakehouse 3 lớp (Bronze, Silver, Gold)** và chạy hoàn toàn bằng **Docker Compose**.
 
 ---
 
 ## 🏗️ Kiến trúc tổng thể
-
 ┌──────────────────────────┐
 │ Data Source │
 │ Kaggle - Transfermarkt │
@@ -52,23 +51,18 @@ Copy code
 
 ## 📂 Cấu trúc thư mục
 
+```bash
 transfermarkt-lakehouse/
 │
-├── docker-compose.yml # Định nghĩa các service (MinIO, Postgres, Jupyter, Superset)
-├── data_raw/ # Dữ liệu gốc từ Kaggle
-├── notebooks/ # Notebook xử lý ETL & ML
-├── docs/ # Hình ảnh, báo cáo, tài liệu minh họa
-└── README.md # Hướng dẫn dự án
-
-yaml
+├── docker-compose.yml       # Định nghĩa các service (MinIO, Postgres, Jupyter, Superset)
+├── data_raw/                # Dữ liệu gốc từ Kaggle
+├── notebooks/               # Notebook xử lý ETL & ML
+├── docs/                    # Hình ảnh, báo cáo, tài liệu minh họa
+└── README.md                # Hướng dẫn dự án
+🧱 Hướng dẫn cài đặt và chạy hệ thống
+1️⃣ Clone repository
+bash
 Copy code
-
----
-
-## 🧱 Hướng dẫn cài đặt và chạy hệ thống
-
-### 1️⃣ Clone repository
-```bash
 git clone https://github.com/everlong123/transfermarkt-lakehouse.git
 cd transfermarkt-lakehouse
 2️⃣ Cài đặt Git LFS (nếu chưa có)
@@ -79,7 +73,7 @@ git lfs pull
 3️⃣ Tải dữ liệu Kaggle
 Tải dataset tại:
 👉 Transfermarkt Dataset on Kaggle
-Giải nén và đặt file vào:
+Giải nén và đặt file vào thư mục:
 
 bash
 Copy code
@@ -88,8 +82,7 @@ transfermarkt-lakehouse/data_raw/
 bash
 Copy code
 docker compose up -d
-Kiểm tra các service:
-
+🔍 Kiểm tra các service
 Thành phần	URL	Ghi chú
 🗄️ MinIO	http://localhost:9001	user: admin, pass: admin12345
 📘 Jupyter Notebook	http://localhost:8888/?token=lab	Chạy ETL và ML
@@ -109,6 +102,38 @@ etl_silver_to_gold.ipynb
 
 ml_player_value_prediction.ipynb
 
+🧠 Machine Learning (ML)
+ML được thực hiện ở tầng Gold, trong Jupyter Notebook:
+notebooks/ml_player_value_prediction.ipynb
+
+Quy trình:
+
+Chuẩn bị dữ liệu (Gold Layer) — đọc từ MinIO (qua S3 API).
+
+Tiền xử lý: làm sạch, chuẩn hóa, mã hóa biến phân loại.
+
+Huấn luyện mô hình: sử dụng PySpark MLlib hoặc scikit-learn.
+
+Đánh giá mô hình: RMSE, R², MAE.
+
+Lưu kết quả: output lưu tại gold/ml_results/ và hiển thị trên Superset.
+
+Ví dụ:
+
+python
+Copy code
+from pyspark.ml.regression import RandomForestRegressor
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml import Pipeline
+
+assembler = VectorAssembler(
+    inputCols=["age", "matches", "goals", "assists", "contract_left"],
+    outputCol="features"
+)
+model = RandomForestRegressor(labelCol="market_value", featuresCol="features")
+pipeline = Pipeline(stages=[assembler, model])
+model_trained = pipeline.fit(train_df)
+predictions = model_trained.transform(test_df)
 📊 Dashboard & Phân tích
 Apache Superset hiển thị các chỉ số chính:
 
@@ -143,3 +168,5 @@ Apache Superset Docs
 Apache Spark Docs
 
 MinIO Documentation
+
+Copy code
