@@ -1,0 +1,83 @@
+version: "3.8"
+
+services:
+  # 1️⃣ MinIO - Data Lake (Bronze/Silver/Gold)
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin12345
+    volumes:
+      - minio_data:/data
+    restart: always
+
+  # 2️⃣ PostgreSQL - metadata Superset + Gold Layer DB
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: hive
+      POSTGRES_PASSWORD: metastore
+      POSTGRES_DB: metastore
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: always
+
+  # 3️⃣ Jupyter + PySpark + Delta Lake
+  jupyter:
+    image: jupyter/pyspark-notebook:latest
+    command: start-notebook.sh --NotebookApp.token=lab
+    ports:
+      - "8888:8888"
+    environment:
+      - JUPYTER_TOKEN=lab
+      - SPARK_OPTS=--packages io.delta:delta-spark_2.12:3.2.0,org.apache.hadoop:hadoop-aws:3.3.4
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./data_raw:/home/jovyan/data_raw
+    depends_on:
+      - minio
+      - postgres
+    restart: always
+
+  # 4️⃣ Apache Superset - Dashboard BI (metadata in PostgreSQL)
+  superset:
+    image: amancevice/superset:latest
+    ports:
+      - "8088:8088"
+    environment:
+      SUPERSET_SECRET_KEY: "secretkey"
+
+      # Quan trọng: chuyển metadata từ SQLite sang PostgreSQL
+      SUPERSET_DATABASE_URI: postgresql+psycopg2://hive:metastore@postgres:5432/metastore
+
+      # Tự động migrate database khi khởi động
+      SUPERSET_LOAD_EXAMPLES: "no"
+      FLASK_APP: superset
+    depends_on:
+      - postgres
+    volumes:
+      - superset_home:/app/superset_home
+    command: >
+      /bin/bash -c "
+      superset db upgrade &&
+      superset fab create-admin \
+        --username admin \
+        --password admin12345 \
+        --firstname Superset \
+        --lastname Admin \
+        --email admin@superset.com || true &&
+      superset init &&
+      superset run -h 0.0.0.0 -p 8088
+      "
+    restart: always
+
+volumes:
+  minio_data:
+  pg_data:
+  superset_home:
