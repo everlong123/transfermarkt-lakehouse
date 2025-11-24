@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  # 1️⃣ MinIO - Data Lake (Bronze/Silver/Gold)
+  # MinIO - Data Lake (Bronze/Silver/Gold)
   minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
@@ -15,7 +15,7 @@ services:
       - minio_data:/data
     restart: always
 
-  # 2️⃣ PostgreSQL - metadata Superset + Gold Layer DB
+  # PostgreSQL - metadata Superset + Gold Layer DB
   postgres:
     image: postgres:15
     environment:
@@ -28,7 +28,7 @@ services:
       - pg_data:/var/lib/postgresql/data
     restart: always
 
-  # 3️⃣ Jupyter + PySpark + Delta Lake
+  # Jupyter + PySpark + Delta Lake
   jupyter:
     image: jupyter/pyspark-notebook:latest
     command: start-notebook.sh --NotebookApp.token=lab
@@ -45,7 +45,7 @@ services:
       - postgres
     restart: always
 
-  # 4️⃣ Apache Superset - Dashboard BI (metadata in PostgreSQL)
+  # Apache Superset - Dashboard BI (metadata in PostgreSQL)
   superset:
     image: amancevice/superset:latest
     ports:
